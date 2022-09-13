@@ -18,8 +18,10 @@ package main
 
 import (
 	"flag"
-	"github.com/alibaba/morphling/api"
 	"os"
+	"time"
+
+	"github.com/alibaba/morphling/api"
 
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
 	"github.com/alibaba/morphling/pkg/controllers"
@@ -45,10 +47,12 @@ func main() {
 		ctrlMetricsAddr string
 		//metricsAddr          string
 		enableLeaderElection bool
+		syncPeriod           time.Duration
 	)
 
 	flag.StringVar(&ctrlMetricsAddr, "controller-metrics-addr", ":8080", "The address the controller metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false, "Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.DurationVar(&syncPeriod, "sync-period", time.Minute*2, "sync-period is the time to sync the controller")
 	flag.Parse()
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
@@ -58,6 +62,7 @@ func main() {
 		Port:               9443,
 		LeaderElection:     enableLeaderElection,
 		//LeaderElectionID:   "tuning-kubedl-morphling",
+		SyncPeriod: &syncPeriod,
 	}
 
 	// Create manager to provide shared dependencies and start components
